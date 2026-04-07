@@ -24,7 +24,7 @@
 #define MAX_TEXT_SIZE 400
 #define MAX_FILE_NAME 100
 
-// Colors — Feel free to change these to fit your preference
+// Colors — Feel free to change these to fit your preference ; THIS IS A TEST OF CODE
 #define BACKGROUND_COLOR WHITE
 #define FONT_COLOR BLACK
 #define SELECTED_BG_COLOR BYU_BLUE
