@@ -21,10 +21,10 @@ For a comprehensive list of hardware components and how to build the doorbell, p
 ## Usage Instructions
 
 <!-- This should contain all the instructions needed to access the lab, compile it from source, and run the doorbell. These should be written with the actual commands contained in `` marks (example `sudo ./main` runs the program). If you'd like, include extra details like how to customize certain features or what materials you need to build a doorbell. -->
-1. Obtain the repository link click on the green <> Code button and make sure the SSH tab is selected
-
-Clone this repository to your Raspberry Pi.
-2. run `sudo ./main` to start the program
+1. Go to the [Github Repo for the Smart Doorbell](https://github.com/byu-ecen-224-classroom/doorbell-project-Unrelenting-Avarice.git)
+2. Clone this repository to your Raspberry Pi.
+3. run `sudo ./main` to start the program
+4. 
 
 ---
 

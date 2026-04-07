@@ -24,7 +24,7 @@
 #define MAX_TEXT_SIZE 400
 #define MAX_FILE_NAME 100
 
-// Colors — Feel free to change these to fit your preference ; THIS IS A TEST OF CODE
+// Colors — Feel free to change these to fit your preference
 #define BACKGROUND_COLOR WHITE
 #define FONT_COLOR BLACK
 #define SELECTED_BG_COLOR BYU_BLUE
@@ -264,7 +264,15 @@ void drawWelcomeMenu (){
     display_draw_string(10, 10, "Welcome", &Font20,BLACK, WHITE);
 }
 
+void drawStrCleared(){
+    display_draw_rectangle(10, 115, 120, 125, BLACK, true, 5);
+    display_draw_string(10, 120, "Clear Pswrd", &Font12,BLACK, WHITE);
+    delay_ms(500);
+}
+
 int main(void) {
+
+    sleep(15);
         
     signal(SIGINT, intHandler);
 
@@ -290,6 +298,7 @@ int main(void) {
 
         char password[20] = "UUDDLRLR";
         char str[20] = "";
+        int reset = 0; // This is used to clear the password
         
 
         bool captive_screen = true;
@@ -305,6 +314,7 @@ int main(void) {
                     // Delay while the button is pressed to avoid repeated actions
                     delay_ms(1);
                 }
+                reset = 0;
             }
 
             if (button_right() == 0) {
@@ -314,6 +324,7 @@ int main(void) {
                     // Delay while the button is pressed to avoid repeated actions
                     delay_ms(1);
                 }
+                reset = 0;
             }
 
             if (button_down() == 0) {
@@ -322,6 +333,7 @@ int main(void) {
                     delay_ms(1);
                 }
                 strcat(str, "D");
+                reset += 1;
             }
 
             if (button_left() == 0) {
@@ -331,9 +343,11 @@ int main(void) {
                     // Delay while the button is pressed to avoid repeated actions
                     delay_ms(1);
                 }
+                reset = 0;
             }
 
             if (button_center() == 0) {
+                reset = 0;
 
                 // Create new picture and store image
                 uint8_t *new_img_buf = malloc(sizeof(uint8_t) * IMG_SIZE);
@@ -418,7 +432,17 @@ int main(void) {
                     str[0] = '\0';
                     captive_screen = false;
                 }
+                drawStrCleared();
                 str[0] = '\0';
+            }
+
+            if (reset >= 4){
+                reset = 0;
+                str[0] = '\0';
+                drawStrCleared();
+                delay(1);
+                drawWelcomeMenu();
+
             }
 
         }
