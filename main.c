@@ -33,6 +33,7 @@
 // GLOBAL VARIABLES
 
 int SendingStatus = 0;
+bool rootLoop = true;
 
 // Makes sure to deinitialize everything before program close
 void intHandler(int dummy) {
@@ -41,14 +42,7 @@ void intHandler(int dummy) {
     exit(0);
 }
 
-/*
- * Takes in a folder, reads the contents of the folder, filtering out any files that do not end with
- * .log or .bmp. This function should check to make sure the folder exists. It fills in the entries
- * array with all of the entries in the folder, up to 8 (MAX_ENTRIES). The function returns the
- * number of entries it put into the entries array.
- */
-void getFileExtension(char extension[], char fileName[])
-{
+void getFileExtension(char extension[], char fileName[]){
     uint32_t i = 0;
     uint32_t dotIndex = 0;
 
@@ -129,6 +123,7 @@ int opBarLen = 100;
 void draw_menu(char entries[][MAX_FILE_NAME], int num_entries, int selected) {
 
     display_clear(WHITE);
+    strcpy(entries[num_entries - 1], "EXIT");
 
 
     // PRINT MENU
@@ -153,7 +148,6 @@ void draw_menu(char entries[][MAX_FILE_NAME], int num_entries, int selected) {
         }
     }
 }
-
     
 void draw_loading_bar() {
 
@@ -186,12 +180,6 @@ void draw_loading_bar() {
 
 }
 
-/*
- * Displays an image or a log file. This function detects the type of file that should be draw. If
- * it is a bmp file, then it calls display_draw_image. If it is a log file, it opens the file, reads
- * 100 characters (MAX_TEXT_SIZE), and displays the text using display_draw_string. Combine folder
- * and file_name to get the complete file path.
- */
 void draw_file(char *folder, char *file_name) {
     
     display_clear(WHITE);
@@ -221,18 +209,12 @@ void draw_file(char *folder, char *file_name) {
         
 }
 
-/*
-void send_image(uint8_t *new_img_buf){
-    struct thread_args *data = (struct thread_args *)arg;
-    tot_count, entries, new_img_buf
-*/
-
 void *send_image(void *new_img_buf){
     
     SendingStatus = 1; // Set loading GlobalVar to 'loading'
 
     // SEND IMAGE TO WEBSITE -- HW ID + new_img_buf variable
-    log_info("img string: %c", new_img_buf);
+    // log_info("img string: %c", new_img_buf);
     log_info("img size: %d", IMG_SIZE);
 
     // LAB 11 - IMG to WEBSITE
@@ -259,6 +241,7 @@ void *send_image(void *new_img_buf){
 }
 
 void drawWelcomeMenu (){
+    //sprintf(path, "%s%s" , VIEWER_FOLDER, "224.bmp");
     display_draw_image("viewer/224.bmp");
     display_draw_rectangle(0, 10, 120, 30, BLACK, true, 5);
     display_draw_string(10, 10, "Welcome", &Font20,BLACK, WHITE);
@@ -272,40 +255,41 @@ void drawStrCleared(){
 
 int main(void) {
 
-    sleep(15);
+    log_set_level(LOG_INFO);
         
     signal(SIGINT, intHandler);
-
     log_info("Starting...");
 
-    // Use this to fill in with entries from the directory
-    //char entries[MAX_ENTRIES][MAX_FILE_NAME];
-
-    //char entries[NUM_ENTRIES][MAX_FILE_NAME] = {"Clear", "Hello", "Chars", "Stars", "Flag", "Exit"};
-
-
-    // TODO: Initialize the hardware
+    // Initialize the hardware
     display_init();
     buttons_init();
 
+    // Wait for hardware to initialize
+    log_info("Sleeping...");
+    sleep(15);
+
+    // Draw menu
+    log_info("Draw Welcome Menu");
+    drawWelcomeMenu();
+
+    char password[20] = "UUDDLRLR";
+    char str[20] = "";
+    int reset = 0; // This is used to clear the password
+
     // RUN MAIN LOOP OF PROGRAM
 
-    while(true){
+    while(rootLoop){
 
         // Captive host for starting menu
-
-        drawWelcomeMenu();
-
-        char password[20] = "UUDDLRLR";
-        char str[20] = "";
-        int reset = 0; // This is used to clear the password
-        
+        log_info("MAIN LOOP INIT");
+        delay_ms(1);
 
         bool captive_screen = true;
 
+        log_info("CAPTIVE INIT");
         while(captive_screen){
-            // Draw welcome message
-            delay_ms(100); // WAIT
+            
+            delay_ms(10); // WAIT
 
             if (button_up() == 0) {
                 strcat(str, "U");
@@ -358,59 +342,6 @@ int main(void) {
                 fwrite(new_img_buf, sizeof(uint8_t), IMG_SIZE, fp);
                 fclose(fp);
 
-                    //Draw image
-                    //Bitmap bmp;
-                    //create_bmp(&bmp, new_img_buf);
-                    //display_draw_image_data(bmp.pxl_data, bmp.img_width, bmp.img_height);
-                
-                    // while (true){
-                    //     reset_pixel_data(&bmp);
-                    //     if (button_up() == 0) {
-                    //         remove_color_channel(GREEN_CHANNEL, &bmp);
-                    
-
-                    //         while (button_up() == 0) {
-                    //             // Delay while the button is pressed to avoid repeated actions
-                    //             delay_ms(1);
-                    //         }
-                    //         display_draw_image_data(bmp.pxl_data, bmp.img_width, bmp.img_height);
-                    //         delay_ms(1000);
-                    //     }
-
-                    //     else if (button_right() == 0) {
-                    //         remove_color_channel(RED_CHANNEL, &bmp);
-                        
-
-                    //         while (button_right() == 0) {
-                    //             // Delay while the button is pressed to avoid repeated actions
-                    //             delay_ms(1);
-                    //         }
-                    //         display_draw_image_data(bmp.pxl_data, bmp.img_width, bmp.img_height);
-                    //     }
-
-                    //     else if (button_down() == 0) {
-                    //         or_filter(&bmp);
-                        
-
-                    //         while (button_down() == 0) {
-                    //                 // Delay while the button is pressed to avoid repeated actions
-                    //                 delay_ms(1);
-                    //         }
-                    //         display_draw_image_data(bmp.pxl_data, bmp.img_width, bmp.img_height);
-                    //     }
-
-                    //     else if (button_left() == 0) {
-                    //         remove_color_channel(BLUE_CHANNEL, &bmp);
-                        
-
-                    //         while (button_left() == 0) {
-                    //             // Delay while the button is pressed to avoid repeated actions
-                    //             delay_ms(1);
-                    //         }
-                    //         display_draw_image_data(bmp.pxl_data, bmp.img_width, bmp.img_height);
-                    //     }
-
-                        
                 pthread_t send_to_server_thread;
                 pthread_create(&send_to_server_thread, NULL, &send_image, (void *) new_img_buf);
 
@@ -428,21 +359,31 @@ int main(void) {
             if (strlen(str) == strlen(password)) {
                 // Auto get password
                 log_info("%s", str);
+                
+
                 if (strcmp(str, password) == 0){
-                    str[0] = '\0';
+                    log_info("PASSWORD ACCEPTED");
                     captive_screen = false;
                 }
-                drawStrCleared();
+
+                else {
+                    drawStrCleared();
+                    delay(1);
+                    drawWelcomeMenu();
+                }
                 str[0] = '\0';
             }
 
             if (reset >= 4){
+                if (reset < 10){
+                    drawStrCleared();
+                    delay(1);
+                }
                 reset = 0;
                 str[0] = '\0';
-                drawStrCleared();
+                drawWelcomeMenu();
                 delay(1);
                 drawWelcomeMenu();
-
             }
 
         }
@@ -450,11 +391,12 @@ int main(void) {
         // Get directory contents using get_entries function
         char entries[MAX_ENTRIES][MAX_FILE_NAME];
         int tot_count = get_entries(VIEWER_FOLDER,entries);
-
         draw_menu(entries, tot_count, 0);
 
         int selected = 0;
         bool secret_menu = true;
+
+        log_info("SECRET INIT");
 
         while (secret_menu) {
             
@@ -504,20 +446,27 @@ int main(void) {
                     // Delay while the button is pressed to avoid repeated actions
                     delay_ms(1);
                 }
+                drawWelcomeMenu();
             }
 
             else if (button_right() == 0) {
-                draw_file(VIEWER_FOLDER, entries[selected]);
-                
+                log_info("Selected File -> %s", entries[selected]);
+
+                if (strcmp(entries[selected], "EXIT") == 0){
+                    secret_menu = false;
+                    rootLoop = false;
+                }
+                else{
+                    draw_file(VIEWER_FOLDER, entries[selected]);
+                    delay_ms(3000);
+                    draw_menu(entries, NUM_ENTRIES, selected);
+                }
 
                 while (button_right() == 0) {
                     // Delay while the button is pressed to avoid repeated actions
                     delay_ms(1);
                 }
-
-                delay_ms(3000);
-
-                draw_menu(entries, NUM_ENTRIES, selected);
+                
             }
 
             else if (button_center() == 0) {
@@ -609,9 +558,14 @@ int main(void) {
                 }
                 draw_menu(entries, NUM_ENTRIES, selected);
             }
-        }
-    }
+            
+        } // MAIN LOOP
 
-    display_clear(BLUE);
+        log_info("Blue Screen Exit");
+        display_clear(BLACK);
+        display_draw_string(20, 50, "Goodbye!", &Font16, BLACK, WHITE);
+        delay_ms(5000);
+        display_clear(BLACK);
+    }
     return 0;
 }
